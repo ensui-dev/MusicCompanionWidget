@@ -527,7 +527,6 @@
 
     // ========== Presets ==========
 
-    const PRESETS_KEY = 'noteworthy_presets';
     const LAST_CONFIG_KEY = 'noteworthy_last_config';
     const presetNameInput = document.getElementById('preset-name');
     const presetsContainer = document.getElementById('presets-container');
@@ -606,104 +605,112 @@
       }
     }
 
-    // Get all saved presets
-    function getPresets() {
-      const saved = localStorage.getItem(PRESETS_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          return [];
-        }
-      }
-      return [];
-    }
-
-    // Save presets to localStorage
-    function savePresets(presets) {
-      localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
-    }
-
-    // Save current config as a preset
-    function savePreset() {
+    // Save current config as a preset (to server)
+    async function savePreset() {
       const name = presetNameInput.value.trim();
       if (!name) {
         showNotification('Please enter a preset name', 'error');
         return;
       }
 
-      const presets = getPresets();
-      const existingIndex = presets.findIndex(p => p.name === name);
+      try {
+        const response = await fetch('/api/presets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            config: getCurrentConfig()
+          })
+        });
 
-      const preset = {
-        name,
-        config: getCurrentConfig(),
-        createdAt: new Date().toISOString()
-      };
+        const result = await response.json();
 
-      if (existingIndex >= 0) {
-        presets[existingIndex] = preset;
-        showNotification(`Preset "${name}" updated`);
-      } else {
-        presets.push(preset);
-        showNotification(`Preset "${name}" saved`);
+        if (result.success) {
+          showNotification(result.updated ? `Preset "${name}" updated` : `Preset "${name}" saved`);
+          presetNameInput.value = '';
+          loadPresetsList();
+        } else {
+          showNotification(result.error || 'Failed to save preset', 'error');
+        }
+      } catch (error) {
+        showNotification('Failed to save preset: ' + error.message, 'error');
       }
-
-      savePresets(presets);
-      presetNameInput.value = '';
-      loadPresetsList();
     }
 
     // Load a preset
-    function loadPreset(name) {
-      const presets = getPresets();
-      const preset = presets.find(p => p.name === name);
-      if (preset) {
-        applyConfig(preset.config);
-        autoSaveConfig();
-        showNotification(`Preset "${name}" loaded`);
+    async function loadPreset(name) {
+      try {
+        const response = await fetch('/api/presets');
+        const presets = await response.json();
+        const preset = presets.find(p => p.name === name);
+
+        if (preset) {
+          applyConfig(preset.config);
+          autoSaveConfig();
+          showNotification(`Preset "${name}" loaded`);
+        } else {
+          showNotification('Preset not found', 'error');
+        }
+      } catch (error) {
+        showNotification('Failed to load preset: ' + error.message, 'error');
       }
     }
 
     // Delete a preset
-    function deletePreset(name) {
+    async function deletePreset(name) {
       if (!confirm(`Delete preset "${name}"?`)) return;
 
-      const presets = getPresets();
-      const filtered = presets.filter(p => p.name !== name);
-      savePresets(filtered);
-      loadPresetsList();
-      showNotification(`Preset "${name}" deleted`);
+      try {
+        const response = await fetch(`/api/presets/${encodeURIComponent(name)}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showNotification(`Preset "${name}" deleted`);
+          loadPresetsList();
+        } else {
+          showNotification(result.error || 'Failed to delete preset', 'error');
+        }
+      } catch (error) {
+        showNotification('Failed to delete preset: ' + error.message, 'error');
+      }
     }
 
-    // Render presets list
-    function loadPresetsList() {
-      const presets = getPresets();
+    // Render presets list (from server)
+    async function loadPresetsList() {
+      try {
+        const response = await fetch('/api/presets');
+        const presets = await response.json();
 
-      if (presets.length === 0) {
-        presetsContainer.innerHTML = '<div class="no-presets-message">No presets saved yet</div>';
-        return;
+        if (presets.length === 0) {
+          presetsContainer.innerHTML = '<div class="no-presets-message">No presets saved yet</div>';
+          return;
+        }
+
+        presetsContainer.innerHTML = presets.map(preset => {
+          const themeName = preset.config.theme.startsWith('custom:')
+            ? preset.config.theme.replace('custom:', '')
+            : (preset.config.theme || 'Glass');
+          const size = `${preset.config.canvasSize?.width || 450}x${preset.config.canvasSize?.height || 150}`;
+
+          return `
+            <div class="preset-item">
+              <div class="preset-info">
+                <div class="preset-name">${preset.name}</div>
+                <div class="preset-details">${themeName} · ${size}</div>
+              </div>
+              <div class="preset-actions">
+                <button class="btn btn-small btn-primary" onclick="loadPreset('${preset.name.replace(/'/g, "\\'")}')">Load</button>
+                <button class="btn btn-small btn-danger" onclick="deletePreset('${preset.name.replace(/'/g, "\\'")}')">Delete</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        presetsContainer.innerHTML = '<div class="no-presets-message">Error loading presets</div>';
       }
-
-      presetsContainer.innerHTML = presets.map(preset => {
-        const themeName = preset.config.theme.startsWith('custom:')
-          ? preset.config.theme.replace('custom:', '')
-          : (preset.config.theme || 'Glass');
-        const size = `${preset.config.canvasSize?.width || 450}x${preset.config.canvasSize?.height || 150}`;
-
-        return `
-          <div class="preset-item">
-            <div class="preset-info">
-              <div class="preset-name">${preset.name}</div>
-              <div class="preset-details">${themeName} · ${size}</div>
-            </div>
-            <div class="preset-actions">
-              <button class="btn btn-small btn-primary" onclick="loadPreset('${preset.name.replace(/'/g, "\\'")}')">Load</button>
-              <button class="btn btn-small btn-danger" onclick="deletePreset('${preset.name.replace(/'/g, "\\'")}')">Delete</button>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     // Auto-save on any config change

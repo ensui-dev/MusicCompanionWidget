@@ -17,6 +17,7 @@ const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 3000;
 const THEMES_DIR = join(__dirname, '../themes');
+const PRESETS_FILE = join(__dirname, '../theme-presets.json');
 const BUILTIN_THEMES = ['glass', 'dark', 'light', 'vaporwave', 'retro', 'custom'];
 
 // Theme upload configuration
@@ -551,6 +552,89 @@ app.get('/api/themes/template/download', (req, res) => {
 
   res.setHeader('Content-Disposition', 'attachment; filename="theme-template.html"');
   res.type('text/html').send(template);
+});
+
+// ========== Presets API ==========
+
+// Helper: Read presets from file
+async function readPresetsFile() {
+  try {
+    const content = await readFile(PRESETS_FILE, 'utf-8');
+    return JSON.parse(content);
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return [];
+    }
+    throw e;
+  }
+}
+
+// Helper: Write presets to file
+async function writePresetsFile(presets) {
+  await writeFile(PRESETS_FILE, JSON.stringify(presets, null, 2), 'utf-8');
+}
+
+// Get all presets
+app.get('/api/presets', async (req, res) => {
+  try {
+    const presets = await readPresetsFile();
+    res.json(presets);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save a preset
+app.post('/api/presets', async (req, res) => {
+  try {
+    const { name, config } = req.body;
+
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'Preset name is required' });
+    }
+
+    if (!config) {
+      return res.status(400).json({ error: 'Config is required' });
+    }
+
+    const presets = await readPresetsFile();
+    const existingIndex = presets.findIndex(p => p.name === name.trim());
+
+    const preset = {
+      name: name.trim(),
+      config,
+      createdAt: new Date().toISOString()
+    };
+
+    if (existingIndex >= 0) {
+      presets[existingIndex] = preset;
+    } else {
+      presets.push(preset);
+    }
+
+    await writePresetsFile(presets);
+    res.json({ success: true, preset, updated: existingIndex >= 0 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a preset
+app.delete('/api/presets/:name', async (req, res) => {
+  try {
+    const presetName = decodeURIComponent(req.params.name);
+    const presets = await readPresetsFile();
+    const filtered = presets.filter(p => p.name !== presetName);
+
+    if (filtered.length === presets.length) {
+      return res.status(404).json({ error: 'Preset not found' });
+    }
+
+    await writePresetsFile(filtered);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Start server
