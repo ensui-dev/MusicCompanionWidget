@@ -23,32 +23,75 @@ A beautiful, customizable music widget that displays your currently playing song
   - Transparent background ready
   - Configurable size
 
+## Prerequisites: Installing Node.js
+
+Before you can run this widget, you need to install Node.js (which includes npm).
+
+### Windows Installation
+
+1. **Download Node.js**
+   - Go to [https://nodejs.org/](https://nodejs.org/)
+   - Click the **LTS** (Long Term Support) version - this is the recommended version for most users
+   - Download the Windows Installer (.msi)
+
+2. **Run the Installer**
+   - Double-click the downloaded `.msi` file
+   - Click "Next" through the wizard
+   - Accept the license agreement
+   - Keep the default installation location
+   - **Important:** Make sure "Add to PATH" is checked (it should be by default)
+   - Click "Install" and wait for it to complete
+
+3. **Verify Installation**
+   - Open **Command Prompt** or **PowerShell** (search for it in the Start menu)
+   - Type the following commands to verify:
+     ```bash
+     node --version
+     npm --version
+     ```
+   - You should see version numbers (e.g., `v20.x.x` and `10.x.x`)
+
+> **Note:** If the commands aren't recognized, try restarting your computer after installation.
+
+---
+
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Download & Open the Project
+
+Open **Command Prompt** or **PowerShell** and navigate to where you downloaded this project:
 
 ```bash
-cd MusicCompanionWidget
+cd path\to\MusicCompanionWidget
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
 ```
 
-### 2. Configure (Optional)
+This will download all the required packages (may take a minute or two).
+
+### 3. Configure (Optional)
 
 Copy the example environment file:
 
 ```bash
-cp .env.example .env
+copy .env.example .env
 ```
 
-Edit `.env` if you want to use Spotify Web API (see Spotify Setup below).
+Edit `.env` with Notepad if you want to use Spotify Web API (see Spotify Setup below).
 
-### 3. Start the Server
+### 4. Start the Server
 
 ```bash
 npm start
 ```
 
-### 4. Add to OBS
+You should see output showing the widget URLs. **Keep this window open** while streaming.
+
+### 5. Add to OBS
 
 1. In OBS, click **+** under Sources
 2. Select **Browser**
@@ -56,7 +99,7 @@ npm start
 4. Set dimensions: **450 x 150** (recommended)
 5. Click OK
 
-### 5. Configure Widget
+### 6. Configure Widget
 
 Open `http://localhost:3000/config` in your browser to:
 - Select music source (Windows Media or Spotify)
