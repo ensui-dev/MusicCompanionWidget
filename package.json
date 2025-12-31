@@ -1,7 +1,7 @@
 {
-  "name": "music-companion-widget",
+  "name": "noteworthy",
   "version": "1.0.0",
-  "description": "A customizable music widget for OBS streaming - displays current song, artist, album art, and progress",
+  "description": "Noteworthy - A customizable music widget for OBS streaming - displays current song, artist, album art, and progress",
   "main": "server/index.js",
   "type": "module",
   "scripts": {

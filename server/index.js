@@ -135,7 +135,7 @@ app.get('/config', (req, res) => {
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`\n🎵 Music Companion Widget Server`);
+  console.log(`\n🎵 Noteworthy Server`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   console.log(`📺 Widget URL:  http://localhost:${PORT}/widget`);
   console.log(`⚙️  Config URL:  http://localhost:${PORT}/config`);

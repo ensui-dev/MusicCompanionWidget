@@ -1,4 +1,4 @@
-# Music Companion Widget for OBS
+# Noteworthy
 
 A beautiful, customizable music widget that displays your currently playing song in OBS streams. Features a modern glassmorphism design with animated visualizer, progress bar, and album art.
 
