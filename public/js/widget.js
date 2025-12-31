@@ -256,3 +256,27 @@ const theme = params.get('theme');
 if (theme) {
   document.getElementById('widget-container')?.setAttribute('data-theme', theme);
 }
+
+// Custom color parameters
+const bgColor = params.get('bg');
+const textColor = params.get('text');
+const accentColor = params.get('accent');
+
+if (bgColor || textColor || accentColor) {
+  const container = document.getElementById('widget-container');
+  if (container) {
+    if (bgColor) {
+      container.style.setProperty('--custom-bg', `#${bgColor}`);
+      container.style.background = `#${bgColor}`;
+    }
+    if (textColor) {
+      container.style.setProperty('--custom-text', `#${textColor}`);
+      document.documentElement.style.setProperty('--custom-text', `#${textColor}`);
+    }
+    if (accentColor) {
+      container.style.setProperty('--custom-accent', `#${accentColor}`);
+      document.documentElement.style.setProperty('--custom-accent', `#${accentColor}`);
+    }
+    container.setAttribute('data-theme', 'custom');
+  }
+}

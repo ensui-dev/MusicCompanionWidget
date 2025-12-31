@@ -66,6 +66,35 @@
             <div class="theme-preview light"></div>
             <span>Light</span>
           </div>
+          <div class="theme-option" data-theme="custom">
+            <div class="theme-preview custom" id="custom-theme-preview"></div>
+            <span>Custom</span>
+          </div>
+        </div>
+
+        <!-- Custom Color Picker -->
+        <div id="custom-color-section" class="custom-color-section">
+          <div class="color-picker-row">
+            <label>Background Color</label>
+            <div class="color-input-group">
+              <input type="color" id="bg-color" value="#1a1a2e">
+              <input type="text" id="bg-color-text" value="#1a1a2e" maxlength="7">
+            </div>
+          </div>
+          <div class="color-picker-row">
+            <label>Text Color</label>
+            <div class="color-input-group">
+              <input type="color" id="text-color" value="#ffffff">
+              <input type="text" id="text-color-text" value="#ffffff" maxlength="7">
+            </div>
+          </div>
+          <div class="color-picker-row">
+            <label>Accent Color</label>
+            <div class="color-input-group">
+              <input type="color" id="accent-color" value="#1DB954">
+              <input type="text" id="accent-color-text" value="#1DB954" maxlength="7">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -95,14 +124,30 @@
   <script>
     // State
     let currentTheme = '';
+    let customColors = {
+      bg: '#1a1a2e',
+      text: '#ffffff',
+      accent: '#1DB954'
+    };
 
     // Elements
     const themeOptions = document.querySelectorAll('.theme-option');
     const widgetUrlInput = document.getElementById('widget-url');
     const widgetPreview = document.getElementById('widget-preview');
+    const customColorSection = document.getElementById('custom-color-section');
+    const customThemePreview = document.getElementById('custom-theme-preview');
+
+    // Color inputs
+    const bgColorInput = document.getElementById('bg-color');
+    const bgColorText = document.getElementById('bg-color-text');
+    const textColorInput = document.getElementById('text-color');
+    const textColorText = document.getElementById('text-color-text');
+    const accentColorInput = document.getElementById('accent-color');
+    const accentColorText = document.getElementById('accent-color-text');
 
     // Initialize
     function init() {
+      updateCustomPreview();
       updateWidgetUrl();
     }
 
@@ -112,9 +157,53 @@
         themeOptions.forEach(t => t.classList.remove('active'));
         option.classList.add('active');
         currentTheme = option.dataset.theme;
+
+        // Show/hide custom color section
+        if (currentTheme === 'custom') {
+          customColorSection.classList.add('visible');
+        } else {
+          customColorSection.classList.remove('visible');
+        }
+
         updateWidgetUrl();
       });
     });
+
+    // Color picker event listeners
+    function syncColorInputs(colorInput, textInput, colorKey) {
+      colorInput.addEventListener('input', () => {
+        textInput.value = colorInput.value;
+        customColors[colorKey] = colorInput.value;
+        updateCustomPreview();
+        if (currentTheme === 'custom') updateWidgetUrl();
+      });
+
+      textInput.addEventListener('input', () => {
+        const value = textInput.value;
+        if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+          colorInput.value = value;
+          customColors[colorKey] = value;
+          updateCustomPreview();
+          if (currentTheme === 'custom') updateWidgetUrl();
+        }
+      });
+
+      textInput.addEventListener('blur', () => {
+        // Ensure valid format on blur
+        if (!/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+          textInput.value = colorInput.value;
+        }
+      });
+    }
+
+    syncColorInputs(bgColorInput, bgColorText, 'bg');
+    syncColorInputs(textColorInput, textColorText, 'text');
+    syncColorInputs(accentColorInput, accentColorText, 'accent');
+
+    // Update custom theme preview swatch
+    function updateCustomPreview() {
+      customThemePreview.style.background = `linear-gradient(135deg, ${customColors.bg}, ${customColors.accent})`;
+    }
 
     // Update widget URL
     function updateWidgetUrl() {
@@ -122,7 +211,14 @@
       const params = new URLSearchParams();
       const previewParams = new URLSearchParams();
 
-      if (currentTheme) {
+      if (currentTheme === 'custom') {
+        params.set('bg', customColors.bg.replace('#', ''));
+        params.set('text', customColors.text.replace('#', ''));
+        params.set('accent', customColors.accent.replace('#', ''));
+        previewParams.set('bg', customColors.bg.replace('#', ''));
+        previewParams.set('text', customColors.text.replace('#', ''));
+        previewParams.set('accent', customColors.accent.replace('#', ''));
+      } else if (currentTheme) {
         params.set('theme', currentTheme);
         previewParams.set('theme', currentTheme);
       }

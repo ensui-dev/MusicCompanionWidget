@@ -309,3 +309,76 @@ header p {
 .theme-preview.light {
   background: rgba(255, 255, 255, 0.7);
 }
+
+.theme-preview.custom {
+  background: linear-gradient(135deg, #1a1a2e, #1DB954);
+}
+
+/* Custom Color Section */
+.custom-color-section {
+  display: none;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 16px;
+  flex-direction: column;
+}
+
+.custom-color-section.visible {
+  display: flex;
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.color-picker-row label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+}
+
+.color-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-input-group input[type="color"] {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.color-input-group input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.color-input-group input[type="color"]::-webkit-color-swatch {
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-input-group input[type="text"] {
+  width: 80px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-family: 'Consolas', monospace;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.color-input-group input[type="text"]:focus {
+  outline: none;
+  border-color: #1DB954;
+}

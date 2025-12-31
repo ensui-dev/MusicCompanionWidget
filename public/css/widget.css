@@ -288,3 +288,34 @@ body.preview {
 .widget-container[data-theme="light"] .time-info {
   color: rgba(26, 26, 46, 0.6);
 }
+
+/* Custom theme using CSS variables */
+.widget-container[data-theme="custom"] {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.widget-container[data-theme="custom"] .track-title {
+  color: var(--custom-text, #ffffff);
+}
+
+.widget-container[data-theme="custom"] .track-artist {
+  color: var(--custom-text, #ffffff);
+  opacity: 0.8;
+}
+
+.widget-container[data-theme="custom"] .time-info {
+  color: var(--custom-text, #ffffff);
+  opacity: 0.7;
+}
+
+.widget-container[data-theme="custom"] .progress-bar {
+  background: linear-gradient(90deg, var(--custom-accent, #1DB954), var(--custom-accent, #1DB954));
+}
+
+.widget-container[data-theme="custom"] .visualizer-bar {
+  background: linear-gradient(to top, var(--custom-accent, #1DB954), var(--custom-accent, #1DB954));
+}
+
+.widget-container[data-theme="custom"] .playing-indicator {
+  background: var(--custom-accent, #1DB954);
+}
