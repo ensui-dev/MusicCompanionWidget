@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Widget - Configuration</title>
+  <link rel="stylesheet" href="/css/config.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎵 Music Companion Widget</h1>
+      <p>Configure your OBS music overlay</p>
+    </header>
+
+    <!-- Music Source Selection -->
+    <div class="card">
+      <h2><span class="icon">🎧</span> Music Source</h2>
+      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+        Select where to pull your currently playing music from
+      </p>
+
+      <div class="provider-grid">
+        <div class="provider-option" data-provider="windows">
+          <div class="icon">🪟</div>
+          <h3>Windows Media</h3>
+          <p>Works with Apple Music, Spotify Desktop, iTunes, and more</p>
+        </div>
+
+        <div class="provider-option" data-provider="spotify">
+          <div class="icon">🟢</div>
+          <h3>Spotify Web API</h3>
+          <p>Direct integration with Spotify (requires setup)</p>
+        </div>
+      </div>
+
+      <!-- Spotify Setup Section -->
+      <div id="spotify-setup" class="spotify-setup">
+        <h3 style="margin-bottom: 12px;">Spotify Setup</h3>
+
+        <div id="spotify-status" class="spotify-status">
+          <div class="dot"></div>
+          <span id="spotify-status-text">Not connected</span>
+        </div>
+
+        <div id="spotify-no-credentials" style="margin-bottom: 16px;">
+          <p style="color: rgba(255,255,255,0.7); margin-bottom: 12px;">
+            To use Spotify, you need to set up API credentials:
+          </p>
+          <ol class="instructions" style="margin-bottom: 16px;">
+            <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank" style="color: #1DB954;">Spotify Developer Dashboard</a></li>
+            <li>Create a new application</li>
+            <li>Add <code>http://localhost:3000/api/spotify/callback</code> as a Redirect URI</li>
+            <li>Copy your Client ID and Client Secret</li>
+            <li>Add them to your <code>.env</code> file</li>
+          </ol>
+        </div>
+
+        <button id="spotify-connect" class="btn btn-primary" style="display: none;">
+          Connect Spotify
+        </button>
+      </div>
+    </div>
+
+    <!-- Widget Preview -->
+    <div class="card">
+      <h2><span class="icon">👁️</span> Preview</h2>
+      <div class="preview-container">
+        <iframe id="widget-preview" src="/widget?preview=true"></iframe>
+      </div>
+    </div>
+
+    <!-- Widget URL -->
+    <div class="card">
+      <h2><span class="icon">🔗</span> Widget URL</h2>
+      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+        Add this URL as a Browser Source in OBS
+      </p>
+
+      <div class="url-box">
+        <input type="text" id="widget-url" readonly>
+        <button class="btn btn-secondary" onclick="copyUrl()">📋 Copy</button>
+      </div>
+
+      <div class="instructions" style="margin-top: 20px;">
+        <h3 style="margin-bottom: 12px;">OBS Setup Instructions</h3>
+        <ol>
+          <li>In OBS, click <strong>+</strong> under Sources</li>
+          <li>Select <strong>Browser</strong></li>
+          <li>Paste the widget URL</li>
+          <li>Set width to <strong>450</strong> and height to <strong>150</strong></li>
+          <li>Check "Refresh browser when scene becomes active" (optional)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Customization -->
+    <div class="card">
+      <h2><span class="icon">🎨</span> Theme</h2>
+      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+        Choose a visual style for your widget
+      </p>
+
+      <div class="customization-grid">
+        <div class="theme-option active" data-theme="">
+          <div class="theme-preview glass"></div>
+          <span>Glass (Default)</span>
+        </div>
+        <div class="theme-option" data-theme="dark">
+          <div class="theme-preview dark"></div>
+          <span>Dark</span>
+        </div>
+        <div class="theme-option" data-theme="light">
+          <div class="theme-preview light"></div>
+          <span>Light</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="notification" class="notification">Copied to clipboard!</div>
+
+  <script>
+    // State
+    let currentProvider = 'windows';
+    let currentTheme = '';
+
+    // Elements
+    const providerOptions = document.querySelectorAll('.provider-option');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const spotifySetup = document.getElementById('spotify-setup');
+    const widgetUrlInput = document.getElementById('widget-url');
+    const widgetPreview = document.getElementById('widget-preview');
+
+    // Initialize
+    async function init() {
+      // Get current provider
+      const response = await fetch('/api/provider');
+      const data = await response.json();
+      currentProvider = data.current;
+      updateProviderUI();
+
+      // Check Spotify status
+      checkSpotifyStatus();
+
+      // Set initial URL
+      updateWidgetUrl();
+    }
+
+    // Provider selection
+    providerOptions.forEach(option => {
+      option.addEventListener('click', async () => {
+        const provider = option.dataset.provider;
+
+        // Update UI immediately
+        providerOptions.forEach(p => p.classList.remove('active'));
+        option.classList.add('active');
+
+        // Show/hide Spotify setup
+        spotifySetup.classList.toggle('visible', provider === 'spotify');
+
+        // Update server
+        await fetch('/api/provider', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider })
+        });
+
+        currentProvider = provider;
+      });
+    });
+
+    function updateProviderUI() {
+      providerOptions.forEach(option => {
+        option.classList.toggle('active', option.dataset.provider === currentProvider);
+      });
+      spotifySetup.classList.toggle('visible', currentProvider === 'spotify');
+    }
+
+    // Spotify status
+    async function checkSpotifyStatus() {
+      try {
+        const response = await fetch('/api/spotify/status');
+        const data = await response.json();
+
+        const statusEl = document.getElementById('spotify-status');
+        const statusText = document.getElementById('spotify-status-text');
+        const connectBtn = document.getElementById('spotify-connect');
+        const noCredentials = document.getElementById('spotify-no-credentials');
+
+        if (data.authenticated) {
+          statusEl.classList.add('connected');
+          statusText.textContent = 'Connected to Spotify';
+          connectBtn.style.display = 'none';
+          noCredentials.style.display = 'none';
+        } else if (data.hasCredentials) {
+          statusEl.classList.remove('connected');
+          statusText.textContent = 'Not connected';
+          connectBtn.style.display = 'inline-flex';
+          noCredentials.style.display = 'none';
+        } else {
+          statusEl.classList.remove('connected');
+          statusText.textContent = 'Credentials not configured';
+          connectBtn.style.display = 'none';
+          noCredentials.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Failed to check Spotify status:', error);
+      }
+    }
+
+    // Spotify connect
+    document.getElementById('spotify-connect').addEventListener('click', () => {
+      window.open('/api/spotify/auth', 'spotify-auth', 'width=500,height=700');
+
+      // Poll for connection status
+      const checkInterval = setInterval(async () => {
+        await checkSpotifyStatus();
+        const statusEl = document.getElementById('spotify-status');
+        if (statusEl.classList.contains('connected')) {
+          clearInterval(checkInterval);
+        }
+      }, 2000);
+
+      // Stop checking after 5 minutes
+      setTimeout(() => clearInterval(checkInterval), 300000);
+    });
+
+    // Theme selection
+    themeOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        themeOptions.forEach(t => t.classList.remove('active'));
+        option.classList.add('active');
+        currentTheme = option.dataset.theme;
+        updateWidgetUrl();
+      });
+    });
+
+    // Update widget URL
+    function updateWidgetUrl() {
+      const baseUrl = `${window.location.origin}/widget`;
+      const params = new URLSearchParams();
+
+      if (currentTheme) {
+        params.set('theme', currentTheme);
+      }
+
+      const url = params.toString() ? `${baseUrl}?${params}` : baseUrl;
+      widgetUrlInput.value = url;
+
+      // Update preview
+      widgetPreview.src = `${url}&preview=true`;
+    }
+
+    // Copy URL
+    function copyUrl() {
+      widgetUrlInput.select();
+      document.execCommand('copy');
+
+      const notification = document.getElementById('notification');
+      notification.classList.add('visible');
+      setTimeout(() => notification.classList.remove('visible'), 2000);
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
