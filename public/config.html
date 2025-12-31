@@ -9,80 +9,83 @@
 <body>
   <div class="container">
     <header>
-      <h1>🎵 Music Companion Widget</h1>
+      <h1>Music Companion Widget</h1>
       <p>Configure your OBS music overlay</p>
     </header>
 
-    <!-- Info Card -->
-    <div class="card">
-      <h2><span class="icon">🎧</span> Music Source</h2>
-      <p style="color: rgba(255,255,255,0.8); margin-bottom: 16px;">
-        This widget automatically detects music from <strong>Windows Media Session</strong>, which works with:
-      </p>
-      <ul style="color: rgba(255,255,255,0.7); margin-left: 20px; line-height: 1.8;">
-        <li>Spotify (Desktop App)</li>
-        <li>Apple Music (Windows App)</li>
-        <li>iTunes</li>
-        <li>Windows Media Player</li>
-        <li>VLC and most other media players</li>
-      </ul>
-      <p style="color: rgba(255,255,255,0.6); margin-top: 16px; font-size: 0.9rem;">
-        Just play music in any of these apps and the widget will automatically display it!
-      </p>
-    </div>
-
-    <!-- Widget Preview -->
-    <div class="card">
-      <h2><span class="icon">👁️</span> Preview</h2>
-      <div class="preview-container">
-        <iframe id="widget-preview" src="/widget?preview=true"></iframe>
-      </div>
-    </div>
-
-    <!-- Widget URL -->
-    <div class="card">
-      <h2><span class="icon">🔗</span> Widget URL</h2>
-      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
-        Add this URL as a Browser Source in OBS
-      </p>
-
-      <div class="url-box">
-        <input type="text" id="widget-url" readonly>
-        <button class="btn btn-secondary" onclick="copyUrl()">📋 Copy</button>
+    <div class="cards-grid">
+      <!-- Widget Preview -->
+      <div class="card full-width">
+        <h2>Preview</h2>
+        <div class="preview-container">
+          <iframe id="widget-preview" src="/widget?preview=true"></iframe>
+        </div>
       </div>
 
-      <div class="instructions" style="margin-top: 20px;">
-        <h3 style="margin-bottom: 12px;">OBS Setup Instructions</h3>
-        <ol>
-          <li>In OBS, click <strong>+</strong> under Sources</li>
-          <li>Select <strong>Browser</strong></li>
-          <li>Paste the widget URL</li>
-          <li>Set width to <strong>450</strong> and height to <strong>150</strong></li>
-          <li>Check "Refresh browser when scene becomes active" (optional)</li>
-        </ol>
+      <!-- Widget URL -->
+      <div class="card">
+        <h2>Widget URL</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+          Add this URL as a Browser Source in OBS
+        </p>
+
+        <div class="url-box">
+          <input type="text" id="widget-url" readonly>
+          <button class="btn btn-secondary" onclick="copyUrl()">Copy</button>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+          <h3 style="margin-bottom: 12px;">OBS Setup Instructions</h3>
+          <ol>
+            <li>In OBS, click <strong>+</strong> under Sources</li>
+            <li>Select <strong>Browser</strong></li>
+            <li>Paste the widget URL</li>
+            <li>Set width to <strong>450</strong> and height to <strong>150</strong></li>
+            <li>Check "Refresh browser when scene becomes active" (optional)</li>
+          </ol>
+        </div>
       </div>
-    </div>
 
-    <!-- Customization -->
-    <div class="card">
-      <h2><span class="icon">🎨</span> Theme</h2>
-      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
-        Choose a visual style for your widget
-      </p>
+      <!-- Customization -->
+      <div class="card">
+        <h2>Theme</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+          Choose a visual style for your widget
+        </p>
 
-      <div class="customization-grid">
-        <div class="theme-option active" data-theme="">
-          <div class="theme-preview glass"></div>
-          <span>Glass (Default)</span>
+        <div class="customization-grid">
+          <div class="theme-option active" data-theme="">
+            <div class="theme-preview glass"></div>
+            <span>Glass (Default)</span>
+          </div>
+          <div class="theme-option" data-theme="dark">
+            <div class="theme-preview dark"></div>
+            <span>Dark</span>
+          </div>
+          <div class="theme-option" data-theme="light">
+            <div class="theme-preview light"></div>
+            <span>Light</span>
+          </div>
         </div>
-        <div class="theme-option" data-theme="dark">
-          <div class="theme-preview dark"></div>
-          <span>Dark</span>
-        </div>
-        <div class="theme-option" data-theme="light">
-          <div class="theme-preview light"></div>
-          <span>Light</span>
-        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="card full-width">
+        <h2>Supported Music Apps</h2>
+        <p style="color: rgba(255,255,255,0.8); margin-bottom: 16px;">
+          This widget automatically detects music from <strong>Windows Media Session</strong>, which works with:
+        </p>
+        <ul style="color: rgba(255,255,255,0.7); margin-left: 20px; line-height: 1.8; column-count: 2; column-gap: 40px;">
+          <li>Spotify (Desktop App)</li>
+          <li>Apple Music (Windows App)</li>
+          <li>iTunes</li>
+          <li>Windows Media Player</li>
+          <li>VLC</li>
+          <li>Most other media players</li>
+        </ul>
+        <p style="color: rgba(255,255,255,0.6); margin-top: 16px; font-size: 0.9rem;">
+          Just play music in any of these apps and the widget will automatically display it!
+        </p>
       </div>
     </div>
   </div>

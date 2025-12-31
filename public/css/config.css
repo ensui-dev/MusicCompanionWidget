@@ -13,8 +13,26 @@ body {
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Grid layout for cards on larger screens */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Preview card spans full width */
+  .cards-grid .card.full-width {
+    grid-column: 1 / -1;
+  }
 }
 
 header {
@@ -41,8 +59,9 @@ header p {
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 24px;
-  margin-bottom: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 .card h2 {
