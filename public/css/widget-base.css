@@ -1,0 +1,66 @@
+/* Base styles for custom themes - ensures dynamic features work properly */
+
+/* Visualizer bar animations */
+.visualizer-bar {
+  transition: height 0.1s ease;
+  animation: wave 0.5s ease-in-out infinite alternate;
+}
+
+.visualizer-bar:nth-child(1) { animation-delay: 0s; }
+.visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
+.visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
+.visualizer-bar:nth-child(4) { animation-delay: 0.15s; }
+.visualizer-bar:nth-child(5) { animation-delay: 0.05s; }
+.visualizer-bar:nth-child(6) { animation-delay: 0.25s; }
+.visualizer-bar:nth-child(7) { animation-delay: 0.08s; }
+.visualizer-bar:nth-child(8) { animation-delay: 0.18s; }
+.visualizer-bar:nth-child(9) { animation-delay: 0.03s; }
+.visualizer-bar:nth-child(10) { animation-delay: 0.22s; }
+.visualizer-bar:nth-child(11) { animation-delay: 0.12s; }
+.visualizer-bar:nth-child(12) { animation-delay: 0.07s; }
+
+@keyframes wave {
+  0% { transform: scaleY(0.5); }
+  100% { transform: scaleY(1); }
+}
+
+/* Paused visualizer state */
+.visualizer.paused .visualizer-bar {
+  animation: none;
+  height: 4px !important;
+  opacity: 0.5;
+}
+
+/* Text scrolling animation for long titles */
+.scrolling {
+  animation: scroll-text 10s linear infinite;
+}
+
+@keyframes scroll-text {
+  0%, 10% { transform: translateX(0); }
+  90%, 100% { transform: translateX(calc(-100% + 200px)); }
+}
+
+/* Playing indicator pulse */
+.playing-indicator {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.playing-indicator.paused {
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* Progress bar smooth transition */
+.progress-bar {
+  transition: width 0.3s linear;
+}
+
+/* Preview mode background */
+body.preview {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}

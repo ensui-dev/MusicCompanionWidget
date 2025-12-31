@@ -552,6 +552,182 @@ header p {
   border-color: var(--pixel-primary);
 }
 
+/* Custom Theme Upload Section */
+.upload-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--pixel-bg-light);
+  border: 2px solid var(--pixel-border);
+}
+
+.upload-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.file-input-wrapper input[type="file"] {
+  display: none;
+}
+
+#selected-file-name {
+  color: var(--pixel-text-dim);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Custom Themes List */
+.custom-themes-list {
+  margin-top: 20px;
+}
+
+.custom-themes-list h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--pixel-primary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.custom-theme-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--pixel-bg-dark);
+  border: 2px solid var(--pixel-border);
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.custom-theme-item:hover {
+  border-color: var(--pixel-accent);
+}
+
+.custom-theme-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-theme-name {
+  color: var(--pixel-text);
+  font-weight: bold;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-theme-author {
+  font-size: 0.8rem;
+  color: var(--pixel-text-dim);
+}
+
+.custom-theme-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  font-size: 0.45rem;
+}
+
+.btn-danger {
+  background: #ff6b6b;
+  border-color: #c44569;
+  color: white;
+  box-shadow: 4px 4px 0 var(--pixel-shadow);
+}
+
+.btn-danger:hover {
+  background: #ff5252;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pixel-shadow);
+}
+
+.btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--pixel-shadow);
+}
+
+/* Theme Template Info */
+.theme-template-info {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--pixel-bg-dark);
+  border: 2px dashed var(--pixel-border);
+}
+
+.theme-template-info h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--pixel-accent);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.theme-template-info p {
+  color: var(--pixel-text-dim);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.theme-template-info ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.theme-template-info li {
+  color: var(--pixel-text-dim);
+  font-size: 0.75rem;
+  margin-bottom: 4px;
+}
+
+.theme-template-info code {
+  background: var(--pixel-bg-mid);
+  padding: 2px 6px;
+  color: var(--pixel-accent);
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+}
+
+.theme-template-info details summary {
+  cursor: pointer;
+  color: var(--pixel-accent);
+  font-size: 0.85rem;
+}
+
+.theme-template-info details summary:hover {
+  color: var(--pixel-primary);
+}
+
+/* Empty state */
+.no-themes-message {
+  text-align: center;
+  padding: 20px;
+  color: var(--pixel-text-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Disabled button state */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 4px 4px 0 var(--pixel-shadow) !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   header h1 {

@@ -106,6 +106,56 @@
         </div>
       </div>
 
+      <!-- Custom Themes -->
+      <div class="card">
+        <h2>Custom Themes</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+          Upload your own HTML theme templates
+        </p>
+
+        <!-- Upload Form -->
+        <div class="upload-section">
+          <form id="theme-upload-form" enctype="multipart/form-data">
+            <div class="file-input-wrapper">
+              <input type="file" id="theme-file" accept=".html">
+              <label for="theme-file" class="btn btn-secondary">Choose File</label>
+              <span id="selected-file-name">No file selected</span>
+            </div>
+            <button type="submit" class="btn btn-primary" id="upload-btn" disabled>Upload Theme</button>
+          </form>
+        </div>
+
+        <!-- Uploaded Themes List -->
+        <div class="custom-themes-list">
+          <h3>Uploaded Themes</h3>
+          <div id="themes-container">
+            <div class="no-themes-message">No custom themes uploaded yet</div>
+          </div>
+        </div>
+
+        <!-- Theme Template Info -->
+        <div class="theme-template-info">
+          <h3>Creating Custom Themes</h3>
+          <p>Custom themes are HTML files with embedded CSS. Download the template to get started:</p>
+          <a href="/api/themes/template/download" class="btn btn-secondary" style="margin-top: 12px;">Download Template</a>
+          <details style="margin-top: 12px;">
+            <summary style="cursor: pointer; color: var(--pixel-accent);">Required Elements</summary>
+            <ul>
+              <li><code>id="widget-container"</code></li>
+              <li><code>id="idle-state"</code></li>
+              <li><code>id="track-content"</code></li>
+              <li><code>id="album-art"</code></li>
+              <li><code>id="track-title"</code></li>
+              <li><code>id="track-artist"</code></li>
+              <li><code>id="progress-bar"</code></li>
+              <li><code>id="current-time"</code></li>
+              <li><code>id="total-time"</code></li>
+              <li><code>id="visualizer"</code></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
       <!-- Info Card -->
       <div class="card full-width">
         <h2>Supported Music Apps</h2>
@@ -239,18 +289,175 @@
       widgetPreview.src = `${baseUrl}?${previewParams}`;
     }
 
+    // Show notification
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.background = type === 'error' ? '#ff6b6b' : 'var(--pixel-accent)';
+      notification.classList.add('visible');
+      setTimeout(() => notification.classList.remove('visible'), 3000);
+    }
+
     // Copy URL
     function copyUrl() {
       widgetUrlInput.select();
       document.execCommand('copy');
-
-      const notification = document.getElementById('notification');
-      notification.classList.add('visible');
-      setTimeout(() => notification.classList.remove('visible'), 2000);
+      showNotification('Copied to clipboard!');
     }
+
+    // ========== Custom Theme Upload ==========
+
+    const themeFileInput = document.getElementById('theme-file');
+    const selectedFileName = document.getElementById('selected-file-name');
+    const uploadBtn = document.getElementById('upload-btn');
+    const uploadForm = document.getElementById('theme-upload-form');
+    const themesContainer = document.getElementById('themes-container');
+
+    // File selection handler
+    themeFileInput.addEventListener('change', () => {
+      if (themeFileInput.files.length > 0) {
+        selectedFileName.textContent = themeFileInput.files[0].name;
+        uploadBtn.disabled = false;
+      } else {
+        selectedFileName.textContent = 'No file selected';
+        uploadBtn.disabled = true;
+      }
+    });
+
+    // Upload handler
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('theme', themeFileInput.files[0]);
+
+      uploadBtn.textContent = 'Uploading...';
+      uploadBtn.disabled = true;
+
+      try {
+        const response = await fetch('/api/themes/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showNotification('Theme uploaded successfully!');
+          loadCustomThemes();
+          themeFileInput.value = '';
+          selectedFileName.textContent = 'No file selected';
+        } else {
+          showNotification(result.error || 'Upload failed', 'error');
+        }
+      } catch (error) {
+        showNotification('Upload failed: ' + error.message, 'error');
+      }
+
+      uploadBtn.textContent = 'Upload Theme';
+      uploadBtn.disabled = true;
+    });
+
+    // Load custom themes list
+    async function loadCustomThemes() {
+      try {
+        const response = await fetch('/api/themes');
+        const themes = await response.json();
+
+        if (themes.custom.length === 0) {
+          themesContainer.innerHTML = '<div class="no-themes-message">No custom themes uploaded yet</div>';
+          return;
+        }
+
+        themesContainer.innerHTML = themes.custom.map(theme => `
+          <div class="custom-theme-item" data-theme-id="${theme.id}">
+            <div class="custom-theme-info">
+              <div class="custom-theme-name">${theme.name}</div>
+              ${theme.author ? `<div class="custom-theme-author">by ${theme.author}</div>` : ''}
+            </div>
+            <div class="custom-theme-actions">
+              <button class="btn btn-small btn-secondary" onclick="previewCustomTheme('${theme.id}')">Preview</button>
+              <button class="btn btn-small btn-primary" onclick="selectCustomTheme('${theme.id}', '${theme.name}')">Use</button>
+              <button class="btn btn-small btn-danger" onclick="deleteCustomTheme('${theme.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        themesContainer.innerHTML = '<div class="no-themes-message">Error loading themes</div>';
+      }
+    }
+
+    // Preview custom theme
+    function previewCustomTheme(themeId) {
+      widgetPreview.src = `/widget?customTheme=${themeId}&preview=true`;
+    }
+
+    // Select custom theme
+    function selectCustomTheme(themeId, themeName) {
+      currentTheme = `custom:${themeId}`;
+      themeOptions.forEach(t => t.classList.remove('active'));
+      customColorSection.classList.remove('visible');
+      updateWidgetUrl();
+      showNotification(`Theme "${themeName}" selected`);
+    }
+
+    // Delete custom theme
+    async function deleteCustomTheme(themeId) {
+      if (!confirm(`Delete theme "${themeId}"?`)) return;
+
+      try {
+        const response = await fetch(`/api/themes/${themeId}`, { method: 'DELETE' });
+        const result = await response.json();
+
+        if (result.success) {
+          showNotification('Theme deleted');
+          loadCustomThemes();
+          // Reset to default if deleted theme was selected
+          if (currentTheme === `custom:${themeId}`) {
+            currentTheme = '';
+            themeOptions[0].classList.add('active');
+            updateWidgetUrl();
+          }
+        } else {
+          showNotification(result.error || 'Delete failed', 'error');
+        }
+      } catch (error) {
+        showNotification('Delete failed: ' + error.message, 'error');
+      }
+    }
+
+    // Update updateWidgetUrl to handle custom themes
+    const originalUpdateWidgetUrl = updateWidgetUrl;
+    updateWidgetUrl = function() {
+      const baseUrl = `${window.location.origin}/widget`;
+      const params = new URLSearchParams();
+      const previewParams = new URLSearchParams();
+
+      if (currentTheme.startsWith('custom:')) {
+        const themeId = currentTheme.replace('custom:', '');
+        params.set('customTheme', themeId);
+        previewParams.set('customTheme', themeId);
+      } else if (currentTheme === 'custom') {
+        params.set('bg', customColors.bg.replace('#', ''));
+        params.set('text', customColors.text.replace('#', ''));
+        params.set('accent', customColors.accent.replace('#', ''));
+        previewParams.set('bg', customColors.bg.replace('#', ''));
+        previewParams.set('text', customColors.text.replace('#', ''));
+        previewParams.set('accent', customColors.accent.replace('#', ''));
+      } else if (currentTheme) {
+        params.set('theme', currentTheme);
+        previewParams.set('theme', currentTheme);
+      }
+      previewParams.set('preview', 'true');
+
+      const url = params.toString() ? `${baseUrl}?${params}` : baseUrl;
+      widgetUrlInput.value = url;
+      widgetPreview.src = `${baseUrl}?${previewParams}`;
+    };
 
     // Start
     init();
+    loadCustomThemes();
   </script>
 </body>
 </html>
