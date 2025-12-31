@@ -17,6 +17,19 @@
       <!-- Widget Preview -->
       <div class="card full-width">
         <h2>Live Preview</h2>
+        <div class="preview-controls">
+          <div class="size-control">
+            <label>Width</label>
+            <input type="number" id="canvas-width" value="450" min="100" max="1920" step="10">
+            <span>px</span>
+          </div>
+          <div class="size-control">
+            <label>Height</label>
+            <input type="number" id="canvas-height" value="150" min="50" max="1080" step="10">
+            <span>px</span>
+          </div>
+          <button class="btn btn-secondary btn-small" onclick="resetCanvasSize()">Reset</button>
+        </div>
         <div class="preview-container">
           <iframe id="widget-preview" src="/widget?preview=true"></iframe>
         </div>
@@ -40,7 +53,7 @@
             <li>In OBS, click <strong>+</strong> under Sources</li>
             <li>Select <strong>Browser</strong></li>
             <li>Paste the widget URL</li>
-            <li>Set width to <strong>450</strong> and height to <strong>150</strong></li>
+            <li>Set width to <strong id="obs-width">450</strong> and height to <strong id="obs-height">150</strong></li>
             <li>Check "Refresh browser when scene becomes active" (optional)</li>
           </ol>
         </div>
@@ -187,6 +200,7 @@
       text: '#ffffff',
       accent: '#1DB954'
     };
+    let canvasSize = { width: 450, height: 150 };
 
     // Elements
     const themeOptions = document.querySelectorAll('.theme-option');
@@ -194,6 +208,10 @@
     const widgetPreview = document.getElementById('widget-preview');
     const customColorSection = document.getElementById('custom-color-section');
     const customThemePreview = document.getElementById('custom-theme-preview');
+    const canvasWidthInput = document.getElementById('canvas-width');
+    const canvasHeightInput = document.getElementById('canvas-height');
+    const obsWidthDisplay = document.getElementById('obs-width');
+    const obsHeightDisplay = document.getElementById('obs-height');
 
     // Color inputs
     const bgColorInput = document.getElementById('bg-color');
@@ -207,7 +225,35 @@
     function init() {
       updateCustomPreview();
       updateWidgetUrl();
+      updateCanvasSize();
     }
+
+    // Canvas size handling
+    function updateCanvasSize() {
+      widgetPreview.style.width = canvasSize.width + 'px';
+      widgetPreview.style.height = canvasSize.height + 'px';
+      obsWidthDisplay.textContent = canvasSize.width;
+      obsHeightDisplay.textContent = canvasSize.height;
+    }
+
+    function resetCanvasSize() {
+      canvasSize = { width: 450, height: 150 };
+      canvasWidthInput.value = 450;
+      canvasHeightInput.value = 150;
+      updateCanvasSize();
+    }
+
+    canvasWidthInput.addEventListener('input', () => {
+      const val = parseInt(canvasWidthInput.value) || 450;
+      canvasSize.width = Math.max(100, Math.min(1920, val));
+      updateCanvasSize();
+    });
+
+    canvasHeightInput.addEventListener('input', () => {
+      const val = parseInt(canvasHeightInput.value) || 150;
+      canvasSize.height = Math.max(50, Math.min(1080, val));
+      updateCanvasSize();
+    });
 
     // Theme selection
     themeOptions.forEach(option => {

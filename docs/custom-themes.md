@@ -308,13 +308,28 @@ Custom themes must be under **512KB**. This should be plenty for HTML and CSS. I
 - Check that visualizer CSS is properly defined
 - The `widget-base.css` file provides default animations
 
+## Adjusting Canvas Size
+
+Custom themes may need different dimensions than the default 450x150. Use the size controls in the config page:
+
+1. Go to `http://localhost:3000/config`
+2. In the **Live Preview** section, adjust **Width** and **Height**
+3. The preview updates in real-time so you can see how your theme looks
+4. The OBS setup instructions automatically update with your chosen dimensions
+
+Common sizes:
+- **450 x 150** - Default horizontal layout
+- **300 x 300** - Square layout for vertical themes
+- **500 x 200** - Larger horizontal with more breathing room
+- **250 x 400** - Tall vertical layout
+
 ## Using Your Theme in OBS
 
 1. Upload or create your theme
-2. Click **Use** next to your theme in the config page
-3. Copy the generated Widget URL
-4. In OBS, add a Browser Source with:
+2. Adjust the canvas size in the preview to fit your theme
+3. Click **Use** next to your theme in the config page
+4. Copy the generated Widget URL
+5. In OBS, add a Browser Source with:
    - URL: Your widget URL (includes `?customTheme=your-theme-name`)
-   - Width: 450
-   - Height: 150
+   - Width & Height: Use the values shown in the config page instructions
    - Check "Shutdown source when not visible" (optional)

@@ -295,6 +295,54 @@ header p {
 }
 
 /* Widget Preview */
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--pixel-bg-light);
+  border: 2px solid var(--pixel-border);
+  flex-wrap: wrap;
+}
+
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-control label {
+  font-size: 0.85rem;
+  color: var(--pixel-text-dim);
+}
+
+.size-control input[type="number"] {
+  width: 80px;
+  padding: 8px 10px;
+  border: 2px solid var(--pixel-border);
+  background: var(--pixel-bg-dark);
+  color: var(--pixel-accent);
+  font-family: 'Consolas', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.size-control input[type="number"]:focus {
+  outline: none;
+  border-color: var(--pixel-primary);
+}
+
+.size-control input[type="number"]::-webkit-inner-spin-button,
+.size-control input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.size-control span {
+  font-size: 0.8rem;
+  color: var(--pixel-text-dim);
+}
+
 .preview-container {
   background:
     linear-gradient(135deg, #2d1b4e 0%, #1a2a4a 50%, #162447 100%);
@@ -304,7 +352,7 @@ header p {
   justify-content: center;
   align-items: center;
   min-height: 180px;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
 }
 
@@ -339,10 +387,10 @@ header p {
   border: none;
   border-radius: 0;
   width: 450px;
-  max-width: 100%;
   height: 150px;
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 /* URL Box */
