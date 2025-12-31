@@ -5,10 +5,10 @@ class MusicWidget {
     this.isPlaying = false;
     this.progressInterval = null;
 
-    // Progress tracking - use a baseline approach to avoid jitter
-    this.progressBaseline = 0;      // The server progress we're interpolating from
-    this.baselineTimestamp = 0;     // When we received that baseline
-    this.lastServerProgress = 0;    // Last progress value from server (for detecting seeks)
+    // Progress tracking - use local time to avoid server jitter
+    this.localProgressMs = 0;       // Current progress tracked locally
+    this.lastTickTime = 0;          // Last time we updated local progress
+    this.lastTrackId = null;        // To detect track changes
 
     this.elements = {
       container: document.getElementById('widget-container'),
@@ -78,23 +78,24 @@ class MusicWidget {
 
     this.hideIdleState();
 
-    // Update track info
-    const isNewTrack = !this.currentTrack || this.currentTrack.title !== track.title;
-    const playStateChanged = this.isPlaying !== track.playing;
-
-    // Smart progress sync - only reset baseline on significant changes
+    // Create a track identifier
+    const trackId = `${track.title}-${track.artist}`;
+    const isNewTrack = trackId !== this.lastTrackId;
     const serverProgress = track.progress || 0;
-    const expectedProgress = this.getInterpolatedProgress();
-    const drift = Math.abs(serverProgress - expectedProgress);
 
-    // Reset baseline if: new track, seeked (>2s drift), play state changed, or first update
-    if (isNewTrack || drift > 2000 || playStateChanged || this.baselineTimestamp === 0) {
-      this.progressBaseline = serverProgress;
-      this.baselineTimestamp = Date.now();
+    // Detect if user seeked (large difference between server and local progress)
+    const progressDiff = Math.abs(serverProgress - this.localProgressMs);
+    const userSeeked = !isNewTrack && progressDiff > 3000;
+
+    // Sync local progress with server only on: new track, seek, or play state change from paused
+    const wasNotPlaying = !this.isPlaying && track.playing;
+    if (isNewTrack || userSeeked || wasNotPlaying || this.lastTrackId === null) {
+      this.localProgressMs = serverProgress;
+      this.lastTickTime = Date.now();
     }
 
+    this.lastTrackId = trackId;
     this.currentTrack = track;
-    this.lastServerProgress = serverProgress;
     this.isPlaying = track.playing;
 
     // Update UI
@@ -131,38 +132,32 @@ class MusicWidget {
     this.checkTextOverflow();
   }
 
-  getInterpolatedProgress() {
-    if (!this.currentTrack || this.baselineTimestamp === 0) return 0;
-
-    if (this.isPlaying) {
-      const elapsed = Date.now() - this.baselineTimestamp;
-      return Math.min(
-        this.progressBaseline + elapsed,
-        this.currentTrack.duration || 0
-      );
-    } else {
-      return this.progressBaseline;
-    }
-  }
-
   updateProgress() {
     if (!this.currentTrack) return;
 
+    const now = Date.now();
     const duration = this.currentTrack.duration || 1;
-    const progress = this.getInterpolatedProgress();
-    const percentage = Math.min((progress / duration) * 100, 100);
+
+    // Increment local progress based on elapsed time if playing
+    if (this.isPlaying && this.lastTickTime > 0) {
+      const elapsed = now - this.lastTickTime;
+      this.localProgressMs = Math.min(this.localProgressMs + elapsed, duration);
+    }
+    this.lastTickTime = now;
+
+    const percentage = Math.min((this.localProgressMs / duration) * 100, 100);
 
     this.elements.progressBar.style.width = `${percentage}%`;
-    this.elements.currentTime.textContent = this.formatTime(progress);
+    this.elements.currentTime.textContent = this.formatTime(this.localProgressMs);
   }
 
   startProgressTracking() {
-    // Update progress every 100ms for smooth animation
+    // Update progress every 50ms for smooth animation
     setInterval(() => {
       if (this.currentTrack) {
         this.updateProgress();
       }
-    }, 100);
+    }, 50);
   }
 
   formatTime(ms) {
