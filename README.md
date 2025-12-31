@@ -2,18 +2,16 @@
 
 A beautiful, customizable music widget that displays your currently playing song in OBS streams. Features a modern glassmorphism design with animated visualizer, progress bar, and album art.
 
-![Widget Preview](docs/preview.png)
-
 ## Features
 
-- **Multiple Music Sources**
-  - **Windows Media Session** - Works with Apple Music, Spotify, iTunes, VLC, and any app that uses Windows media controls
-  - **Spotify Web API** - Direct integration with Spotify for more detailed information
+- **Windows Media Session Integration**
+  - Works with Spotify, Apple Music, iTunes, VLC, and any app that uses Windows media controls
+  - Automatic album art fetching when not provided by the app
 
 - **Beautiful Design**
   - Glassmorphism (frosted glass) aesthetic
   - Smooth animated audio visualizer
-  - Album art with source indicator
+  - Album art display
   - Progress bar with time display
   - Multiple theme options (Glass, Dark, Light)
 
@@ -73,17 +71,7 @@ npm install
 
 This will download all the required packages (may take a minute or two).
 
-### 3. Configure (Optional)
-
-Copy the example environment file:
-
-```bash
-copy .env.example .env
-```
-
-Edit `.env` with Notepad if you want to use Spotify Web API (see Spotify Setup below).
-
-### 4. Start the Server
+### 3. Start the Server
 
 ```bash
 npm start
@@ -91,7 +79,7 @@ npm start
 
 You should see output showing the widget URLs. **Keep this window open** while streaming.
 
-### 5. Add to OBS
+### 4. Add to OBS
 
 1. In OBS, click **+** under Sources
 2. Select **Browser**
@@ -99,46 +87,24 @@ You should see output showing the widget URLs. **Keep this window open** while s
 4. Set dimensions: **450 x 150** (recommended)
 5. Click OK
 
-### 6. Configure Widget
+### 5. Configure Widget
 
 Open `http://localhost:3000/config` in your browser to:
-- Select music source (Windows Media or Spotify)
 - Preview the widget
 - Choose a theme
 - Copy the widget URL
 
-## Music Source Options
+## Supported Music Apps
 
-### Windows Media Session (Recommended)
-
-This is the easiest option and works with most music applications on Windows, including:
-- Apple Music (Windows app)
+The widget works with any app that uses Windows Media Session, including:
 - Spotify (Desktop app)
+- Apple Music (Windows app)
 - iTunes
 - Windows Media Player
 - VLC
 - Most other media players
 
-No configuration required - just select "Windows Media" in the config page.
-
-### Spotify Web API
-
-For more detailed track information directly from Spotify:
-
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Log in and create a new application
-3. In your app settings, add this Redirect URI:
-   ```
-   http://localhost:3000/api/spotify/callback
-   ```
-4. Copy your **Client ID** and **Client Secret**
-5. Add them to your `.env` file:
-   ```
-   SPOTIFY_CLIENT_ID=your_client_id
-   SPOTIFY_CLIENT_SECRET=your_client_secret
-   ```
-6. Restart the server
-7. Go to the config page and click "Connect Spotify"
+Just play music in any of these apps and the widget will automatically display it!
 
 ## URL Parameters
 
@@ -160,10 +126,6 @@ Examples:
 | `/widget` | GET | Widget page (for OBS) |
 | `/config` | GET | Configuration interface |
 | `/api/track` | GET | Current track info (JSON) |
-| `/api/provider` | GET | List available providers |
-| `/api/provider` | POST | Change active provider |
-| `/api/spotify/auth` | GET | Start Spotify OAuth |
-| `/api/spotify/status` | GET | Check Spotify connection |
 
 ## WebSocket Events
 
@@ -181,14 +143,8 @@ Connect to `ws://localhost:3000` to receive real-time updates:
     "albumArt": "url or base64",
     "duration": 210000,
     "progress": 45000,
-    "source": "spotify" // or "windows"
+    "source": "windows"
   }
-}
-
-// Provider change
-{
-  "type": "provider",
-  "data": "spotify" // or "windows"
 }
 ```
 
@@ -196,22 +152,16 @@ Connect to `ws://localhost:3000` to receive real-time updates:
 
 ### Widget shows "No music playing"
 - Make sure music is actually playing
-- For Windows Media: Check that your music app appears in the Windows volume mixer
-- For Spotify: Make sure you've connected your account in the config page
+- Check that your music app appears in the Windows volume mixer
 
 ### Album art not showing
-- Some apps don't provide album art through Windows Media Session
-- Try using Spotify Web API for better album art support
+- The widget will automatically try to fetch album art from iTunes/Deezer if the app doesn't provide it
+- Make sure you have an internet connection
 
 ### Widget not updating
 - Check that the server is running
 - Refresh the browser source in OBS
 - Check browser console for WebSocket errors
-
-### Spotify connection fails
-- Verify your Client ID and Secret are correct
-- Make sure the redirect URI matches exactly
-- Check that you've added the redirect URI in Spotify Dashboard
 
 ## Development
 

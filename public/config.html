@@ -13,53 +13,22 @@
       <p>Configure your OBS music overlay</p>
     </header>
 
-    <!-- Music Source Selection -->
+    <!-- Info Card -->
     <div class="card">
       <h2><span class="icon">🎧</span> Music Source</h2>
-      <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
-        Select where to pull your currently playing music from
+      <p style="color: rgba(255,255,255,0.8); margin-bottom: 16px;">
+        This widget automatically detects music from <strong>Windows Media Session</strong>, which works with:
       </p>
-
-      <div class="provider-grid">
-        <div class="provider-option" data-provider="windows">
-          <div class="icon">🪟</div>
-          <h3>Windows Media</h3>
-          <p>Works with Apple Music, Spotify Desktop, iTunes, and more</p>
-        </div>
-
-        <div class="provider-option" data-provider="spotify">
-          <div class="icon">🟢</div>
-          <h3>Spotify Web API</h3>
-          <p>Direct integration with Spotify (requires setup)</p>
-        </div>
-      </div>
-
-      <!-- Spotify Setup Section -->
-      <div id="spotify-setup" class="spotify-setup">
-        <h3 style="margin-bottom: 12px;">Spotify Setup</h3>
-
-        <div id="spotify-status" class="spotify-status">
-          <div class="dot"></div>
-          <span id="spotify-status-text">Not connected</span>
-        </div>
-
-        <div id="spotify-no-credentials" style="margin-bottom: 16px;">
-          <p style="color: rgba(255,255,255,0.7); margin-bottom: 12px;">
-            To use Spotify, you need to set up API credentials:
-          </p>
-          <ol class="instructions" style="margin-bottom: 16px;">
-            <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank" style="color: #1DB954;">Spotify Developer Dashboard</a></li>
-            <li>Create a new application</li>
-            <li>Add <code>http://localhost:3000/api/spotify/callback</code> as a Redirect URI</li>
-            <li>Copy your Client ID and Client Secret</li>
-            <li>Add them to your <code>.env</code> file</li>
-          </ol>
-        </div>
-
-        <button id="spotify-connect" class="btn btn-primary" style="display: none;">
-          Connect Spotify
-        </button>
-      </div>
+      <ul style="color: rgba(255,255,255,0.7); margin-left: 20px; line-height: 1.8;">
+        <li>Spotify (Desktop App)</li>
+        <li>Apple Music (Windows App)</li>
+        <li>iTunes</li>
+        <li>Windows Media Player</li>
+        <li>VLC and most other media players</li>
+      </ul>
+      <p style="color: rgba(255,255,255,0.6); margin-top: 16px; font-size: 0.9rem;">
+        Just play music in any of these apps and the widget will automatically display it!
+      </p>
     </div>
 
     <!-- Widget Preview -->
@@ -122,109 +91,17 @@
 
   <script>
     // State
-    let currentProvider = 'windows';
     let currentTheme = '';
 
     // Elements
-    const providerOptions = document.querySelectorAll('.provider-option');
     const themeOptions = document.querySelectorAll('.theme-option');
-    const spotifySetup = document.getElementById('spotify-setup');
     const widgetUrlInput = document.getElementById('widget-url');
     const widgetPreview = document.getElementById('widget-preview');
 
     // Initialize
-    async function init() {
-      // Get current provider
-      const response = await fetch('/api/provider');
-      const data = await response.json();
-      currentProvider = data.current;
-      updateProviderUI();
-
-      // Check Spotify status
-      checkSpotifyStatus();
-
-      // Set initial URL
+    function init() {
       updateWidgetUrl();
     }
-
-    // Provider selection
-    providerOptions.forEach(option => {
-      option.addEventListener('click', async () => {
-        const provider = option.dataset.provider;
-
-        // Update UI immediately
-        providerOptions.forEach(p => p.classList.remove('active'));
-        option.classList.add('active');
-
-        // Show/hide Spotify setup
-        spotifySetup.classList.toggle('visible', provider === 'spotify');
-
-        // Update server
-        await fetch('/api/provider', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ provider })
-        });
-
-        currentProvider = provider;
-      });
-    });
-
-    function updateProviderUI() {
-      providerOptions.forEach(option => {
-        option.classList.toggle('active', option.dataset.provider === currentProvider);
-      });
-      spotifySetup.classList.toggle('visible', currentProvider === 'spotify');
-    }
-
-    // Spotify status
-    async function checkSpotifyStatus() {
-      try {
-        const response = await fetch('/api/spotify/status');
-        const data = await response.json();
-
-        const statusEl = document.getElementById('spotify-status');
-        const statusText = document.getElementById('spotify-status-text');
-        const connectBtn = document.getElementById('spotify-connect');
-        const noCredentials = document.getElementById('spotify-no-credentials');
-
-        if (data.authenticated) {
-          statusEl.classList.add('connected');
-          statusText.textContent = 'Connected to Spotify';
-          connectBtn.style.display = 'none';
-          noCredentials.style.display = 'none';
-        } else if (data.hasCredentials) {
-          statusEl.classList.remove('connected');
-          statusText.textContent = 'Not connected';
-          connectBtn.style.display = 'inline-flex';
-          noCredentials.style.display = 'none';
-        } else {
-          statusEl.classList.remove('connected');
-          statusText.textContent = 'Credentials not configured';
-          connectBtn.style.display = 'none';
-          noCredentials.style.display = 'block';
-        }
-      } catch (error) {
-        console.error('Failed to check Spotify status:', error);
-      }
-    }
-
-    // Spotify connect
-    document.getElementById('spotify-connect').addEventListener('click', () => {
-      window.open('/api/spotify/auth', 'spotify-auth', 'width=500,height=700');
-
-      // Poll for connection status
-      const checkInterval = setInterval(async () => {
-        await checkSpotifyStatus();
-        const statusEl = document.getElementById('spotify-status');
-        if (statusEl.classList.contains('connected')) {
-          clearInterval(checkInterval);
-        }
-      }, 2000);
-
-      // Stop checking after 5 minutes
-      setTimeout(() => clearInterval(checkInterval), 300000);
-    });
 
     // Theme selection
     themeOptions.forEach(option => {
