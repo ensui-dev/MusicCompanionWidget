@@ -1,5 +1,5 @@
-/* Import Noto Sans for wide Unicode support including CJK */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Noto+Sans+JP:wght@400;600&family=Noto+Sans+KR:wght@400;600&display=swap');
+/* Import Noto Sans for wide Unicode support including CJK, Arabic, and Cyrillic */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Noto+Sans+JP:wght@400;600&family=Noto+Sans+KR:wght@400;600&family=Noto+Sans+Arabic:wght@400;600&display=swap');
 
 * {
   margin: 0;
@@ -9,7 +9,8 @@
 
 body {
   font-family:
-    'Noto Sans',             /* Base Latin */
+    'Noto Sans',             /* Base Latin + Cyrillic */
+    'Noto Sans Arabic',      /* Arabic (Google Fonts) */
     'Noto Sans SC',          /* Simplified Chinese (Google Fonts) */
     'Noto Sans JP',          /* Japanese (Google Fonts) */
     'Noto Sans KR',          /* Korean (Google Fonts) */
@@ -436,7 +437,7 @@ body.preview {
 }
 
 .widget-container[data-theme="retro"] .track-title {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'Press Start 2P', 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', monospace;
   font-size: 12px;
   color: #45e6b8;
   text-shadow: 2px 2px 0 #0d0d1a;
@@ -444,7 +445,7 @@ body.preview {
 }
 
 .widget-container[data-theme="retro"] .track-artist {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'Press Start 2P', 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', monospace;
   font-size: 9px;
   color: #ff6b9d;
   text-shadow: 2px 2px 0 #0d0d1a;
@@ -534,7 +535,7 @@ body.preview {
 }
 
 .widget-container[data-theme="retro"] .idle-message {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'Press Start 2P', 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', monospace;
   font-size: 10px;
   color: #a89ec9;
   text-shadow: 2px 2px 0 #0d0d1a;
