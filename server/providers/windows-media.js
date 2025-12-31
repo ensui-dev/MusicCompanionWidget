@@ -28,10 +28,10 @@ export class WindowsMediaProvider {
     }
 
     try {
-      // Execute the external PowerShell script
+      // Execute the external PowerShell script with UTF-8 encoding for proper Unicode support
       const { stdout, stderr } = await execAsync(
         `powershell -NoProfile -ExecutionPolicy Bypass -File "${this.scriptPath}"`,
-        { timeout: 5000 }
+        { timeout: 5000, encoding: 'utf8' }
       );
 
       if (stderr && !stdout) {
