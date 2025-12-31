@@ -527,9 +527,9 @@
 
     // ========== Presets ==========
 
-    const LAST_CONFIG_KEY = 'noteworthy_last_config';
     const presetNameInput = document.getElementById('preset-name');
     const presetsContainer = document.getElementById('presets-container');
+    let saveStateTimeout = null;
 
     // Get current config state
     function getCurrentConfig() {
@@ -541,7 +541,7 @@
     }
 
     // Apply a config state
-    function applyConfig(config) {
+    function applyConfig(config, skipSave = false) {
       // Apply theme
       currentTheme = config.theme || '';
       themeOptions.forEach(t => t.classList.remove('active'));
@@ -584,24 +584,35 @@
         updateCanvasSize();
       }
 
-      updateWidgetUrl();
+      updateWidgetUrl(skipSave);
     }
 
-    // Save current config to localStorage (auto-save)
+    // Save current config to server (debounced)
     function autoSaveConfig() {
-      localStorage.setItem(LAST_CONFIG_KEY, JSON.stringify(getCurrentConfig()));
+      if (saveStateTimeout) {
+        clearTimeout(saveStateTimeout);
+      }
+      saveStateTimeout = setTimeout(async () => {
+        try {
+          await fetch('/api/widget-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(getCurrentConfig())
+          });
+        } catch (e) {
+          console.error('Failed to save widget state:', e);
+        }
+      }, 300);
     }
 
     // Load last config on page load
-    function loadLastConfig() {
-      const saved = localStorage.getItem(LAST_CONFIG_KEY);
-      if (saved) {
-        try {
-          const config = JSON.parse(saved);
-          applyConfig(config);
-        } catch (e) {
-          console.error('Failed to load last config:', e);
-        }
+    async function loadLastConfig() {
+      try {
+        const response = await fetch('/api/widget-state');
+        const config = await response.json();
+        applyConfig(config, true);
+      } catch (e) {
+        console.error('Failed to load widget state:', e);
       }
     }
 
@@ -715,9 +726,11 @@
 
     // Auto-save on any config change
     const originalUpdateWidgetUrlForAutoSave = updateWidgetUrl;
-    updateWidgetUrl = function() {
+    updateWidgetUrl = function(skipSave = false) {
       originalUpdateWidgetUrlForAutoSave();
-      autoSaveConfig();
+      if (!skipSave) {
+        autoSaveConfig();
+      }
     };
 
     // Start

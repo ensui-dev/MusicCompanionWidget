@@ -18,6 +18,7 @@ const wss = new WebSocketServer({ server });
 const PORT = process.env.PORT || 3000;
 const THEMES_DIR = join(__dirname, '../themes');
 const PRESETS_FILE = join(__dirname, '../theme-presets.json');
+const WIDGET_STATE_FILE = join(__dirname, '../widget-state.json');
 const BUILTIN_THEMES = ['glass', 'dark', 'light', 'vaporwave', 'retro', 'custom'];
 
 // Theme upload configuration
@@ -631,6 +632,47 @@ app.delete('/api/presets/:name', async (req, res) => {
     }
 
     await writePresetsFile(filtered);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== Widget State API ==========
+
+// Default widget state
+const DEFAULT_WIDGET_STATE = {
+  theme: '',
+  customColors: {
+    bg: '#1a1a2e',
+    text: '#ffffff',
+    accent: '#1DB954'
+  },
+  canvasSize: {
+    width: 450,
+    height: 150
+  }
+};
+
+// Get widget state
+app.get('/api/widget-state', async (req, res) => {
+  try {
+    const content = await readFile(WIDGET_STATE_FILE, 'utf-8');
+    res.json(JSON.parse(content));
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      res.json(DEFAULT_WIDGET_STATE);
+    } else {
+      res.status(500).json({ error: e.message });
+    }
+  }
+});
+
+// Save widget state
+app.post('/api/widget-state', async (req, res) => {
+  try {
+    const state = req.body;
+    await writeFile(WIDGET_STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
