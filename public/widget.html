@@ -18,7 +18,14 @@
     <div id="track-content" style="display: none; align-items: center; gap: 16px; width: 100%;">
       <!-- Album Art -->
       <div class="album-art-container">
-        <img id="album-art" class="album-art placeholder" alt="Album Art">
+        <img id="album-art" class="album-art hidden" alt="">
+        <div id="album-art-placeholder" class="album-art-placeholder visible">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+          </svg>
+        </div>
         <div id="playing-indicator" class="playing-indicator paused"></div>
       </div>
 

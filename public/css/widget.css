@@ -54,19 +54,57 @@ body.preview {
   object-fit: cover;
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: block;
 }
 
-.album-art.placeholder {
-  display: flex;
+.album-art.hidden {
+  display: none;
+}
+
+/* Placeholder when no album art */
+.album-art-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: none;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+  position: relative;
+  overflow: hidden;
 }
 
-.album-art.placeholder::after {
-  content: '♪';
-  font-size: 40px;
-  color: rgba(255, 255, 255, 0.5);
+.album-art-placeholder.visible {
+  display: flex;
+}
+
+.album-art-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 70%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.album-art-placeholder svg {
+  width: 40px;
+  height: 40px;
+  opacity: 0.4;
 }
 
 /* Playing indicator pulse */
@@ -218,20 +256,6 @@ body.preview {
   transition: all 0.3s ease;
 }
 
-/* Source badge */
-.source-badge {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  font-size: 16px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* Error state */
 .error-message {

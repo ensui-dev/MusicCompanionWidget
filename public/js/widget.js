@@ -10,6 +10,7 @@ class MusicWidget {
     this.elements = {
       container: document.getElementById('widget-container'),
       albumArt: document.getElementById('album-art'),
+      albumArtPlaceholder: document.getElementById('album-art-placeholder'),
       playingIndicator: document.getElementById('playing-indicator'),
       title: document.getElementById('track-title'),
       artist: document.getElementById('track-artist'),
@@ -87,10 +88,12 @@ class MusicWidget {
     // Album art
     if (track.albumArt) {
       this.elements.albumArt.src = track.albumArt;
-      this.elements.albumArt.classList.remove('placeholder');
+      this.elements.albumArt.classList.remove('hidden');
+      this.elements.albumArtPlaceholder.classList.remove('visible');
     } else {
       this.elements.albumArt.src = '';
-      this.elements.albumArt.classList.add('placeholder');
+      this.elements.albumArt.classList.add('hidden');
+      this.elements.albumArtPlaceholder.classList.add('visible');
     }
 
     // Playing indicator
@@ -110,9 +113,6 @@ class MusicWidget {
 
     // Check if text needs scrolling
     this.checkTextOverflow();
-
-    // Source badge
-    this.updateSourceBadge(track.source);
   }
 
   updateProgress() {
@@ -198,23 +198,6 @@ class MusicWidget {
     } else {
       artistEl.classList.remove('scrolling');
     }
-  }
-
-  updateSourceBadge(source) {
-    let badge = this.elements.container.querySelector('.source-badge');
-    if (!badge) {
-      badge = document.createElement('div');
-      badge.className = 'source-badge';
-      this.elements.albumArt.parentElement.appendChild(badge);
-    }
-
-    const icons = {
-      spotify: '🟢',
-      windows: '🪟',
-      apple: '🍎'
-    };
-
-    badge.textContent = icons[source] || '🎵';
   }
 
   showIdleState() {
