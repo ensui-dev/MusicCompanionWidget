@@ -192,14 +192,15 @@ header p {
   justify-content: center;
   align-items: center;
   min-height: 180px;
+  overflow: hidden;
 }
 
 .preview-container iframe {
   border: none;
   border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
-  height: 140px;
+  width: 450px;
+  max-width: 100%;
+  height: 150px;
 }
 
 /* URL Box */
