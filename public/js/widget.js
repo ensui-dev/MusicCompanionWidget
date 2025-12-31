@@ -4,12 +4,14 @@ class MusicWidget {
     this.currentTrack = null;
     this.isPlaying = false;
 
+    // Debug mode - enable via URL param ?debug=true
+    this.debug = new URLSearchParams(window.location.search).get('debug') === 'true';
+
     // Progress tracking - pure local time based
-    // We store the progress at a specific point in time, then calculate current progress from that
+    // Server only sends updates on state changes (track change, play/pause, seek)
+    // We sync to server progress on those events, then calculate locally using system time
     this.syncedProgressMs = 0;    // Progress value when we last synced
     this.syncedAtTime = 0;        // System time (Date.now()) when we synced
-    this.lastTrackId = null;      // To detect track changes
-    this.wasPlaying = false;      // Previous playing state
 
     this.elements = {
       container: document.getElementById('widget-container'),
@@ -76,29 +78,25 @@ class MusicWidget {
 
     this.hideIdleState();
 
-    // Create a track identifier
-    const trackId = `${track.title}-${track.artist}`;
-    const isNewTrack = trackId !== this.lastTrackId;
     const serverProgress = track.progress || 0;
 
-    // Detect state changes that require a sync
-    const playStateChanged = this.wasPlaying !== track.playing;
-
-    // Detect seek: calculate where we think progress should be vs what server says
-    const currentLocalProgress = this.getCurrentProgress();
-    const drift = Math.abs(serverProgress - currentLocalProgress);
-    const userSeeked = !isNewTrack && drift > 2500; // 2.5 second threshold for seek detection
-
-    // Only sync progress on meaningful state changes
-    if (isNewTrack || userSeeked || playStateChanged || this.lastTrackId === null) {
-      this.syncedProgressMs = serverProgress;
-      this.syncedAtTime = Date.now();
+    // Debug logging
+    if (this.debug) {
+      const currentLocalProgress = this.getCurrentProgress();
+      console.log('--- Track Update (State Change) ---');
+      console.log('Server progress:', this.formatTime(serverProgress), `(${serverProgress}ms)`);
+      console.log('Local progress:', this.formatTime(currentLocalProgress), `(${Math.round(currentLocalProgress)}ms)`);
+      console.log('Playing:', track.playing);
+      console.log('%c>>> SYNCING <<<', 'color: green; font-weight: bold');
+      console.log('-----------------------------------');
     }
 
+    // Server only sends updates on state changes, so always sync
+    this.syncedProgressMs = serverProgress;
+    this.syncedAtTime = Date.now();
+
     // Update state
-    this.lastTrackId = trackId;
     this.currentTrack = track;
-    this.wasPlaying = this.isPlaying;
     this.isPlaying = track.playing;
 
     // Update UI elements (not progress - that's handled by the render loop)

@@ -24,6 +24,11 @@ const mediaProvider = new WindowsMediaProvider();
 let currentTrack = null;
 let pollingInterval = null;
 
+// State tracking for change detection
+let lastTrackId = null;
+let lastPlayingState = null;
+let lastProgressMs = null;
+
 // WebSocket connections
 const clients = new Set();
 
@@ -56,21 +61,43 @@ async function pollCurrentTrack() {
   try {
     const track = await mediaProvider.getCurrentTrack();
 
-    // Check if track changed
-    const trackChanged = !currentTrack ||
-      currentTrack.title !== track?.title ||
-      currentTrack.artist !== track?.artist;
+    // Create track identifier
+    const trackId = track ? `${track.title}-${track.artist}` : null;
 
+    // Detect meaningful state changes
+    const isNewTrack = trackId !== lastTrackId;
+    const playStateChanged = lastPlayingState !== null && lastPlayingState !== track?.playing;
+
+    // Detect seek: large jump in progress (more than 2.5 seconds from expected)
+    // Expected progress = lastProgress + poll interval (1000ms) if playing
+    let userSeeked = false;
+    if (track && lastProgressMs !== null && !isNewTrack) {
+      const expectedProgress = lastPlayingState ? lastProgressMs + 1500 : lastProgressMs; // 1.5s tolerance
+      const actualProgress = track.progress || 0;
+      const drift = Math.abs(actualProgress - expectedProgress);
+      userSeeked = drift > 2500; // User seeked if drift > 2.5 seconds
+    }
+
+    // Determine if we should broadcast (only on state changes)
+    const shouldBroadcast = isNewTrack || playStateChanged || userSeeked || lastTrackId === null;
+
+    // Update state tracking
+    lastTrackId = trackId;
+    lastPlayingState = track?.playing ?? null;
+    lastProgressMs = track?.progress ?? null;
     currentTrack = track;
 
-    if (track) {
-      broadcast({
-        type: 'track',
-        data: track,
-        changed: trackChanged
-      });
-    } else {
-      broadcast({ type: 'track', data: null });
+    // Only broadcast on meaningful state changes
+    if (shouldBroadcast) {
+      if (track) {
+        console.log(`Broadcasting: ${isNewTrack ? 'new track' : ''} ${playStateChanged ? 'play state changed' : ''} ${userSeeked ? 'user seeked' : ''}`);
+        broadcast({
+          type: 'track',
+          data: track
+        });
+      } else {
+        broadcast({ type: 'track', data: null });
+      }
     }
   } catch (error) {
     console.error('Error polling track:', error.message);
