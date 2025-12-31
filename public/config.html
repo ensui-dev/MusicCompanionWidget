@@ -240,16 +240,19 @@
     function updateWidgetUrl() {
       const baseUrl = `${window.location.origin}/widget`;
       const params = new URLSearchParams();
+      const previewParams = new URLSearchParams();
 
       if (currentTheme) {
         params.set('theme', currentTheme);
+        previewParams.set('theme', currentTheme);
       }
+      previewParams.set('preview', 'true');
 
       const url = params.toString() ? `${baseUrl}?${params}` : baseUrl;
       widgetUrlInput.value = url;
 
-      // Update preview
-      widgetPreview.src = `${url}&preview=true`;
+      // Update preview (always has preview=true)
+      widgetPreview.src = `${baseUrl}?${previewParams}`;
     }
 
     // Copy URL
