@@ -119,6 +119,30 @@
         </div>
       </div>
 
+      <!-- Presets -->
+      <div class="card">
+        <h2>Presets</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+          Save and load your configuration
+        </p>
+
+        <!-- Save Current Config -->
+        <div class="preset-save-section">
+          <div class="preset-input-row">
+            <input type="text" id="preset-name" placeholder="Preset name..." maxlength="30">
+            <button class="btn btn-primary" onclick="savePreset()">Save</button>
+          </div>
+        </div>
+
+        <!-- Saved Presets List -->
+        <div class="presets-list">
+          <h3>Saved Presets</h3>
+          <div id="presets-container">
+            <div class="no-presets-message">No presets saved yet</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Custom Themes -->
       <div class="card">
         <h2>Custom Themes</h2>
@@ -501,9 +525,199 @@
       widgetPreview.src = `${baseUrl}?${previewParams}`;
     };
 
+    // ========== Presets ==========
+
+    const PRESETS_KEY = 'noteworthy_presets';
+    const LAST_CONFIG_KEY = 'noteworthy_last_config';
+    const presetNameInput = document.getElementById('preset-name');
+    const presetsContainer = document.getElementById('presets-container');
+
+    // Get current config state
+    function getCurrentConfig() {
+      return {
+        theme: currentTheme,
+        customColors: { ...customColors },
+        canvasSize: { ...canvasSize }
+      };
+    }
+
+    // Apply a config state
+    function applyConfig(config) {
+      // Apply theme
+      currentTheme = config.theme || '';
+      themeOptions.forEach(t => t.classList.remove('active'));
+
+      if (currentTheme.startsWith('custom:')) {
+        // Custom uploaded theme - no built-in option to highlight
+        customColorSection.classList.remove('visible');
+      } else {
+        const matchingOption = document.querySelector(`[data-theme="${currentTheme}"]`);
+        if (matchingOption) {
+          matchingOption.classList.add('active');
+        } else {
+          themeOptions[0].classList.add('active');
+        }
+
+        if (currentTheme === 'custom') {
+          customColorSection.classList.add('visible');
+        } else {
+          customColorSection.classList.remove('visible');
+        }
+      }
+
+      // Apply custom colors
+      if (config.customColors) {
+        customColors = { ...config.customColors };
+        bgColorInput.value = customColors.bg;
+        bgColorText.value = customColors.bg;
+        textColorInput.value = customColors.text;
+        textColorText.value = customColors.text;
+        accentColorInput.value = customColors.accent;
+        accentColorText.value = customColors.accent;
+        updateCustomPreview();
+      }
+
+      // Apply canvas size
+      if (config.canvasSize) {
+        canvasSize = { ...config.canvasSize };
+        canvasWidthInput.value = canvasSize.width;
+        canvasHeightInput.value = canvasSize.height;
+        updateCanvasSize();
+      }
+
+      updateWidgetUrl();
+    }
+
+    // Save current config to localStorage (auto-save)
+    function autoSaveConfig() {
+      localStorage.setItem(LAST_CONFIG_KEY, JSON.stringify(getCurrentConfig()));
+    }
+
+    // Load last config on page load
+    function loadLastConfig() {
+      const saved = localStorage.getItem(LAST_CONFIG_KEY);
+      if (saved) {
+        try {
+          const config = JSON.parse(saved);
+          applyConfig(config);
+        } catch (e) {
+          console.error('Failed to load last config:', e);
+        }
+      }
+    }
+
+    // Get all saved presets
+    function getPresets() {
+      const saved = localStorage.getItem(PRESETS_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          return [];
+        }
+      }
+      return [];
+    }
+
+    // Save presets to localStorage
+    function savePresets(presets) {
+      localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+    }
+
+    // Save current config as a preset
+    function savePreset() {
+      const name = presetNameInput.value.trim();
+      if (!name) {
+        showNotification('Please enter a preset name', 'error');
+        return;
+      }
+
+      const presets = getPresets();
+      const existingIndex = presets.findIndex(p => p.name === name);
+
+      const preset = {
+        name,
+        config: getCurrentConfig(),
+        createdAt: new Date().toISOString()
+      };
+
+      if (existingIndex >= 0) {
+        presets[existingIndex] = preset;
+        showNotification(`Preset "${name}" updated`);
+      } else {
+        presets.push(preset);
+        showNotification(`Preset "${name}" saved`);
+      }
+
+      savePresets(presets);
+      presetNameInput.value = '';
+      loadPresetsList();
+    }
+
+    // Load a preset
+    function loadPreset(name) {
+      const presets = getPresets();
+      const preset = presets.find(p => p.name === name);
+      if (preset) {
+        applyConfig(preset.config);
+        autoSaveConfig();
+        showNotification(`Preset "${name}" loaded`);
+      }
+    }
+
+    // Delete a preset
+    function deletePreset(name) {
+      if (!confirm(`Delete preset "${name}"?`)) return;
+
+      const presets = getPresets();
+      const filtered = presets.filter(p => p.name !== name);
+      savePresets(filtered);
+      loadPresetsList();
+      showNotification(`Preset "${name}" deleted`);
+    }
+
+    // Render presets list
+    function loadPresetsList() {
+      const presets = getPresets();
+
+      if (presets.length === 0) {
+        presetsContainer.innerHTML = '<div class="no-presets-message">No presets saved yet</div>';
+        return;
+      }
+
+      presetsContainer.innerHTML = presets.map(preset => {
+        const themeName = preset.config.theme.startsWith('custom:')
+          ? preset.config.theme.replace('custom:', '')
+          : (preset.config.theme || 'Glass');
+        const size = `${preset.config.canvasSize?.width || 450}x${preset.config.canvasSize?.height || 150}`;
+
+        return `
+          <div class="preset-item">
+            <div class="preset-info">
+              <div class="preset-name">${preset.name}</div>
+              <div class="preset-details">${themeName} · ${size}</div>
+            </div>
+            <div class="preset-actions">
+              <button class="btn btn-small btn-primary" onclick="loadPreset('${preset.name.replace(/'/g, "\\'")}')">Load</button>
+              <button class="btn btn-small btn-danger" onclick="deletePreset('${preset.name.replace(/'/g, "\\'")}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Auto-save on any config change
+    const originalUpdateWidgetUrlForAutoSave = updateWidgetUrl;
+    updateWidgetUrl = function() {
+      originalUpdateWidgetUrlForAutoSave();
+      autoSaveConfig();
+    };
+
     // Start
     init();
     loadCustomThemes();
+    loadPresetsList();
+    loadLastConfig();
   </script>
 </body>
 </html>

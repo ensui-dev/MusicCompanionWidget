@@ -760,12 +760,94 @@ header p {
 }
 
 /* Empty state */
-.no-themes-message {
+.no-themes-message,
+.no-presets-message {
   text-align: center;
   padding: 20px;
   color: var(--pixel-text-dim);
   font-style: italic;
   font-size: 0.85rem;
+}
+
+/* Presets Section */
+.preset-save-section {
+  margin-bottom: 20px;
+}
+
+.preset-input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.preset-input-row input[type="text"] {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid var(--pixel-border);
+  background: var(--pixel-bg-dark);
+  color: var(--pixel-text);
+  font-size: 0.9rem;
+}
+
+.preset-input-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--pixel-primary);
+}
+
+.preset-input-row input[type="text"]::placeholder {
+  color: var(--pixel-text-dim);
+  font-style: italic;
+}
+
+.presets-list {
+  margin-top: 16px;
+}
+
+.presets-list h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--pixel-primary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--pixel-bg-dark);
+  border: 2px solid var(--pixel-border);
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.preset-item:hover {
+  border-color: var(--pixel-accent);
+}
+
+.preset-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.preset-name {
+  color: var(--pixel-text);
+  font-weight: bold;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-details {
+  font-size: 0.75rem;
+  color: var(--pixel-text-dim);
+}
+
+.preset-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Disabled button state */
