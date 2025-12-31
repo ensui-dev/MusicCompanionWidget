@@ -1,3 +1,6 @@
+/* Import Noto Sans for wide Unicode support including CJK */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Noto+Sans+JP:wght@400;600&family=Noto+Sans+KR:wght@400;600&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,7 +8,24 @@
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+  font-family:
+    'Noto Sans',             /* Base Latin */
+    'Noto Sans SC',          /* Simplified Chinese (Google Fonts) */
+    'Noto Sans JP',          /* Japanese (Google Fonts) */
+    'Noto Sans KR',          /* Korean (Google Fonts) */
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Roboto',
+    /* System CJK fonts fallback */
+    'Microsoft YaHei',       /* Chinese (Windows) */
+    'PingFang SC',           /* Chinese (macOS) */
+    'Hiragino Sans GB',      /* Chinese (macOS) */
+    'Meiryo',                /* Japanese (Windows) */
+    'Malgun Gothic',         /* Korean (Windows) */
+    /* Unicode fallbacks */
+    'Arial Unicode MS',
+    sans-serif;
   background: transparent;
   min-height: 100vh;
   display: flex;
@@ -318,4 +338,209 @@ body.preview {
 
 .widget-container[data-theme="custom"] .playing-indicator {
   background: var(--custom-accent, #1DB954);
+}
+
+/* Vaporwave theme */
+.widget-container[data-theme="vaporwave"] {
+  background: linear-gradient(135deg, #0d0221 0%, #1a0a3e 50%, #2d1b69 100%);
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #ff6ec7, #7873f5, #00d4ff) 1;
+  box-shadow:
+    0 0 20px rgba(255, 110, 199, 0.3),
+    0 0 40px rgba(120, 115, 245, 0.2),
+    inset 0 0 30px rgba(255, 110, 199, 0.1);
+}
+
+.widget-container[data-theme="vaporwave"] .track-title {
+  background: linear-gradient(90deg, #ff6ec7, #7873f5, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  font-weight: 700;
+}
+
+.widget-container[data-theme="vaporwave"] .track-artist {
+  color: #ff6ec7;
+  text-shadow: 0 0 10px rgba(255, 110, 199, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .time-info {
+  color: #00d4ff;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .progress-bar-container {
+  background: rgba(120, 115, 245, 0.3);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .progress-bar {
+  background: linear-gradient(90deg, #ff6ec7, #7873f5, #00d4ff);
+  box-shadow: 0 0 10px rgba(255, 110, 199, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .visualizer-bar {
+  background: linear-gradient(to top, #ff6ec7, #7873f5, #00d4ff);
+  box-shadow: 0 0 8px rgba(255, 110, 199, 0.6);
+}
+
+.widget-container[data-theme="vaporwave"] .playing-indicator {
+  background: linear-gradient(135deg, #ff6ec7, #00d4ff);
+  box-shadow: 0 0 12px rgba(255, 110, 199, 0.8);
+}
+
+.widget-container[data-theme="vaporwave"] .playing-indicator.paused {
+  background: linear-gradient(135deg, #7873f5, #00d4ff);
+}
+
+.widget-container[data-theme="vaporwave"] .album-art {
+  box-shadow:
+    0 0 20px rgba(255, 110, 199, 0.4),
+    0 0 40px rgba(120, 115, 245, 0.2);
+  border: 2px solid rgba(255, 110, 199, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .album-art-placeholder {
+  background: linear-gradient(135deg, rgba(255, 110, 199, 0.2), rgba(120, 115, 245, 0.2));
+  border: 2px solid rgba(255, 110, 199, 0.3);
+  box-shadow: 0 0 20px rgba(255, 110, 199, 0.3);
+}
+
+.widget-container[data-theme="vaporwave"] .album-art-placeholder svg {
+  stroke: #ff6ec7;
+  filter: drop-shadow(0 0 5px rgba(255, 110, 199, 0.5));
+}
+
+.widget-container[data-theme="vaporwave"] .idle-message {
+  color: #ff6ec7;
+  text-shadow: 0 0 10px rgba(255, 110, 199, 0.5);
+}
+
+.widget-container[data-theme="vaporwave"] .idle-message .icon {
+  filter: drop-shadow(0 0 10px rgba(255, 110, 199, 0.8));
+}
+
+/* Retro/Pixel Art theme */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.widget-container[data-theme="retro"] {
+  background: #1a1a2e;
+  border: 4px solid #3d3d5c;
+  border-radius: 0;
+  box-shadow:
+    8px 8px 0 #0d0d1a,
+    inset -4px -4px 0 #2d2d44,
+    inset 4px 4px 0 #4d4d6a;
+  image-rendering: pixelated;
+}
+
+.widget-container[data-theme="retro"] .track-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #45e6b8;
+  text-shadow: 2px 2px 0 #0d0d1a;
+  letter-spacing: 1px;
+}
+
+.widget-container[data-theme="retro"] .track-artist {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: #ff6b9d;
+  text-shadow: 2px 2px 0 #0d0d1a;
+  letter-spacing: 1px;
+}
+
+.widget-container[data-theme="retro"] .time-info {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #a89ec9;
+  text-shadow: 1px 1px 0 #0d0d1a;
+}
+
+.widget-container[data-theme="retro"] .progress-bar-container {
+  background: #2d2d44;
+  border: 2px solid #3d3d5c;
+  border-radius: 0;
+  height: 8px;
+  box-shadow: inset 2px 2px 0 #1a1a2e;
+}
+
+.widget-container[data-theme="retro"] .progress-bar {
+  background: linear-gradient(180deg, #45e6b8 0%, #2eb88a 50%, #45e6b8 100%);
+  border-radius: 0;
+  box-shadow: none;
+  transition: width 0.1s steps(20);
+}
+
+.widget-container[data-theme="retro"] .visualizer {
+  gap: 4px;
+}
+
+.widget-container[data-theme="retro"] .visualizer-bar {
+  background: linear-gradient(180deg, #ff6b9d 0%, #c44569 50%, #ff6b9d 100%);
+  border-radius: 0;
+  width: 6px;
+  box-shadow: 2px 2px 0 #0d0d1a;
+  transition: height 0.1s steps(8);
+}
+
+.widget-container[data-theme="retro"] .playing-indicator {
+  background: #45e6b8;
+  border: 2px solid #2eb88a;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #0d0d1a;
+  animation: retro-blink 0.5s steps(2) infinite;
+}
+
+.widget-container[data-theme="retro"] .playing-indicator.paused {
+  background: #ff6b9d;
+  border-color: #c44569;
+  animation: none;
+}
+
+@keyframes retro-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.widget-container[data-theme="retro"] .album-art {
+  border: 4px solid #3d3d5c;
+  border-radius: 0;
+  box-shadow:
+    4px 4px 0 #0d0d1a,
+    inset -2px -2px 0 #2d2d44,
+    inset 2px 2px 0 #5c5c8a;
+  image-rendering: pixelated;
+}
+
+.widget-container[data-theme="retro"] .album-art-placeholder {
+  background: #2d2d44;
+  border: 4px solid #3d3d5c;
+  border-radius: 0;
+  box-shadow:
+    4px 4px 0 #0d0d1a,
+    inset -2px -2px 0 #1a1a2e,
+    inset 2px 2px 0 #4d4d6a;
+}
+
+.widget-container[data-theme="retro"] .album-art-placeholder::before {
+  display: none;
+}
+
+.widget-container[data-theme="retro"] .album-art-placeholder svg {
+  stroke: #45e6b8;
+  opacity: 0.6;
+}
+
+.widget-container[data-theme="retro"] .idle-message {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #a89ec9;
+  text-shadow: 2px 2px 0 #0d0d1a;
+}
+
+.widget-container[data-theme="retro"] .idle-message .icon {
+  font-size: 24px;
+  filter: none;
 }

@@ -475,6 +475,17 @@ header p {
   background: linear-gradient(135deg, var(--pixel-bg-dark), var(--pixel-accent));
 }
 
+.theme-preview.vaporwave {
+  background: linear-gradient(135deg, #0d0221, #1a0a3e, #ff6ec7);
+  box-shadow: 0 0 8px rgba(255, 110, 199, 0.5);
+}
+
+.theme-preview.retro {
+  background: #1a1a2e;
+  border: 3px solid #45e6b8;
+  box-shadow: 4px 4px 0 #0d0d1a;
+}
+
 /* Custom Color Section */
 .custom-color-section {
   display: none;
